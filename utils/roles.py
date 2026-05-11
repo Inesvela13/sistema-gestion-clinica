@@ -1,0 +1,1 @@
+ROL_ACTUAL = "admin"   # cambia a "medico" si quieres probar otro rol
