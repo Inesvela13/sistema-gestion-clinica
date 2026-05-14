@@ -1,24 +1,14 @@
-import tkinter as tk
 from tkinter import ttk, messagebox
 
-from config.styles import (
-    COLOR_FONDO,
-    COLOR_BLANCO,
-    COLOR_TENSION,
-    FUENTE_TITULO,
-    FUENTE_FORMULARIO,
-    FUENTE_FORMULARIO_NEGRITA
-)
-
-from widgets.botones import BotonTension, BotonGris
+from views.components.botones import boton_tension, boton_gris
 
 
-class CrearTension(tk.Frame):
+class CrearTension(ttk.Frame):
 
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=COLOR_FONDO)
+    def __init__(self, parent, app):
+        super().__init__(parent, style="App.TFrame")
 
-        self.controller = controller
+        self.app = app
         self.mapa_pacientes = {}
 
         self.crear_titulo()
@@ -26,129 +16,116 @@ class CrearTension(tk.Frame):
         self.crear_botones()
 
     def crear_titulo(self):
-        titulo = tk.Label(
+        self.label_titulo = ttk.Label(
             self,
             text="Registro de Tensión Arterial",
-            font=FUENTE_TITULO,
-            fg=COLOR_TENSION,
-            bg=COLOR_FONDO
+            style="TensionTitle.TLabel"
         )
 
-        titulo.pack(pady=30)
+        self.label_titulo.pack(pady=25)
 
     def crear_formulario(self):
-        self.card = tk.Frame(
+        self.formulario = ttk.Frame(
             self,
-            bg=COLOR_BLANCO,
-            bd=1,
-            relief="solid"
+            style="Card.TFrame",
+            padding=30
         )
 
-        self.card.pack(pady=10, ipadx=30, ipady=20)
+        self.formulario.pack(pady=10)
 
-        form_frame = tk.Frame(
-            self.card,
-            bg=COLOR_BLANCO
-        )
-
-        form_frame.pack(padx=30, pady=20)
-
-        tk.Label(
-            form_frame,
+        self.label_paciente = ttk.Label(
+            self.formulario,
             text="Paciente:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(row=0, column=0, padx=15, pady=15, sticky="e")
+            style="Form.TLabel"
+        )
 
         self.combo_paciente = ttk.Combobox(
-            form_frame,
-            width=30,
+            self.formulario,
             state="readonly",
-            font=FUENTE_FORMULARIO
+            width=32
         )
 
-        self.combo_paciente.grid(row=0, column=1, pady=15)
-
-        tk.Label(
-            form_frame,
+        self.label_sistolica = ttk.Label(
+            self.formulario,
             text="Sistólica:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(row=1, column=0, padx=15, pady=15, sticky="e")
-
-        self.entry_sistolica = tk.Entry(
-            form_frame,
-            width=33,
-            font=FUENTE_FORMULARIO
+            style="Form.TLabel"
         )
 
-        self.entry_sistolica.grid(row=1, column=1, pady=15)
+        self.entry_sistolica = ttk.Entry(
+            self.formulario,
+            width=34
+        )
 
-        tk.Label(
-            form_frame,
+        self.label_diastolica = ttk.Label(
+            self.formulario,
             text="Diastólica:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(row=2, column=0, padx=15, pady=15, sticky="e")
-
-        self.entry_diastolica = tk.Entry(
-            form_frame,
-            width=33,
-            font=FUENTE_FORMULARIO
+            style="Form.TLabel"
         )
 
-        self.entry_diastolica.grid(row=2, column=1, pady=15)
+        self.entry_diastolica = ttk.Entry(
+            self.formulario,
+            width=34
+        )
 
-        tk.Label(
-            form_frame,
+        self.label_valoracion = ttk.Label(
+            self.formulario,
             text="Valoración:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(row=3, column=0, padx=15, pady=15, sticky="e")
+            style="Form.TLabel"
+        )
 
         self.combo_valoracion = ttk.Combobox(
-            form_frame,
+            self.formulario,
             values=[
                 "Normal",
-                "Normal-alta",
+                "Elevada",
                 "Hipertensión Etapa 1",
                 "Hipertensión Etapa 2",
-                "Hipertensión severa",
-                "Hipertensión sistólica",
+                "Crisis hipertensiva",
                 "Hipotensión"
             ],
-            width=30,
             state="readonly",
-            font=FUENTE_FORMULARIO
+            width=32
         )
 
-        self.combo_valoracion.grid(row=3, column=1, pady=15)
+        self.label_paciente.grid(row=0, column=0, padx=15, pady=12, sticky="e")
+        self.combo_paciente.grid(row=0, column=1, padx=15, pady=12)
+
+        self.label_sistolica.grid(row=1, column=0, padx=15, pady=12, sticky="e")
+        self.entry_sistolica.grid(row=1, column=1, padx=15, pady=12)
+
+        self.label_diastolica.grid(row=2, column=0, padx=15, pady=12, sticky="e")
+        self.entry_diastolica.grid(row=2, column=1, padx=15, pady=12)
+
+        self.label_valoracion.grid(row=3, column=0, padx=15, pady=12, sticky="e")
+        self.combo_valoracion.grid(row=3, column=1, padx=15, pady=12)
+
         self.combo_valoracion.set("Normal")
 
     def crear_botones(self):
-        botones = tk.Frame(
-            self.card,
-            bg=COLOR_BLANCO
+        self.frame_botones = ttk.Frame(
+            self,
+            style="App.TFrame"
         )
 
-        botones.pack(pady=20)
+        self.frame_botones.pack(pady=20)
 
-        BotonTension(
-            botones,
-            text="💾 Guardar registro",
-            command=self.guardar_tension,
-            width=20
-        ).grid(row=0, column=0, padx=15)
+        self.boton_guardar = boton_tension(
+            self.frame_botones,
+            "Guardar tensión",
+            self.guardar_tension
+        )
 
-        BotonGris(
-            botones,
-            text="⬅️ Cancelar",
-            command=lambda: self.controller.show_frame("menu"),
-            width=18
-        ).grid(row=0, column=1, padx=15)
+        self.boton_cancelar = boton_gris(
+            self.frame_botones,
+            "Cancelar",
+            lambda: self.app.mostrar_vista("menu")
+        )
+
+        self.boton_guardar.grid(row=0, column=0, padx=10)
+        self.boton_cancelar.grid(row=0, column=1, padx=10)
 
     def actualizar_datos(self):
-        pacientes = self.controller.paciente_service.obtener_pacientes()
+        pacientes = self.app.tension_controller.obtener_pacientes()
 
         nombres = []
         self.mapa_pacientes.clear()
@@ -169,22 +146,17 @@ class CrearTension(tk.Frame):
             self.combo_paciente.set(nombres[0])
 
     def guardar_tension(self):
-        nombre_seleccionado = self.combo_paciente.get()
-
-        id_paciente = self.mapa_pacientes.get(
-            nombre_seleccionado,
-            ""
-        )
+        nombre_paciente = self.combo_paciente.get()
 
         datos = {
-            "id_paciente": id_paciente,
-            "sistólica": self.entry_sistolica.get().strip(),
-            "diastólica": self.entry_diastolica.get().strip(),
-            "valoración": self.combo_valoracion.get()
+            "id_paciente": self.mapa_pacientes.get(nombre_paciente, ""),
+            "sistolica": self.entry_sistolica.get().strip(),
+            "diastolica": self.entry_diastolica.get().strip(),
+            "valoracion": self.combo_valoracion.get()
         }
 
         try:
-            self.controller.tension_service.crear_tension(datos)
+            self.app.tension_controller.crear_tension(datos)
 
             messagebox.showinfo(
                 "Registro guardado",
@@ -192,12 +164,12 @@ class CrearTension(tk.Frame):
             )
 
             self.limpiar_formulario()
-            self.controller.show_frame("menu")
+            self.app.mostrar_vista("lista_tensiones")
 
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
+        except Exception as error:
+            messagebox.showerror("Error", str(error))
 
     def limpiar_formulario(self):
-        self.entry_sistolica.delete(0, tk.END)
-        self.entry_diastolica.delete(0, tk.END)
+        self.entry_sistolica.delete(0, "end")
+        self.entry_diastolica.delete(0, "end")
         self.combo_valoracion.set("Normal")

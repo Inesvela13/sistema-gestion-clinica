@@ -1,294 +1,146 @@
-import tkinter as tk
 from tkinter import ttk, messagebox
 
-from config.styles import (
-    COLOR_FONDO,
-    COLOR_BLANCO,
-    COLOR_PRIMARIO,
-    FUENTE_TITULO,
-    FUENTE_FORMULARIO,
-    FUENTE_FORMULARIO_NEGRITA
-)
-
-from widgets.botones import (
-    BotonExito,
-    BotonGris
-)
+from views.components.botones import boton_exito, boton_gris
 
 
-class CrearPaciente(tk.Frame):
+class CrearPaciente(ttk.Frame):
 
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=COLOR_FONDO)
+    def __init__(self, parent, app):
+        super().__init__(parent, style="App.TFrame")
 
-        self.controller = controller
+        self.app = app
 
         self.crear_titulo()
         self.crear_formulario()
         self.crear_botones()
 
-    # =========================================
-    # TÍTULO
-    # =========================================
-
     def crear_titulo(self):
-
-        titulo = tk.Label(
+        self.label_titulo = ttk.Label(
             self,
             text="Alta de Nuevo Paciente",
-            font=FUENTE_TITULO,
-            fg=COLOR_PRIMARIO,
-            bg=COLOR_FONDO
+            style="Title.TLabel"
         )
 
-        titulo.pack(pady=30)
-
-    # =========================================
-    # FORMULARIO
-    # =========================================
+        self.label_titulo.pack(pady=25)
 
     def crear_formulario(self):
-
-        self.card = tk.Frame(
+        self.formulario = ttk.Frame(
             self,
-            bg=COLOR_BLANCO,
-            bd=1,
-            relief="solid"
+            style="Card.TFrame",
+            padding=30
         )
 
-        self.card.pack(
-            pady=10,
-            ipadx=30,
-            ipady=20
-        )
+        self.formulario.pack(pady=10)
 
-        form_frame = tk.Frame(
-            self.card,
-            bg=COLOR_BLANCO
-        )
-
-        form_frame.pack(
-            padx=30,
-            pady=20
-        )
-
-        # =========================
-        # NOMBRE
-        # =========================
-
-        tk.Label(
-            form_frame,
+        self.label_nombre = ttk.Label(
+            self.formulario,
             text="Nombre:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(
-            row=0,
-            column=0,
-            padx=15,
-            pady=15,
-            sticky="e"
+            style="Form.TLabel"
         )
 
-        self.entry_nombre = tk.Entry(
-            form_frame,
-            width=30,
-            font=FUENTE_FORMULARIO
+        self.entry_nombre = ttk.Entry(
+            self.formulario,
+            width=32
         )
 
-        self.entry_nombre.grid(
-            row=0,
-            column=1,
-            pady=15
-        )
-
-        # =========================
-        # APELLIDO
-        # =========================
-
-        tk.Label(
-            form_frame,
+        self.label_apellido = ttk.Label(
+            self.formulario,
             text="Apellido:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(
-            row=1,
-            column=0,
-            padx=15,
-            pady=15,
-            sticky="e"
+            style="Form.TLabel"
         )
 
-        self.entry_apellido = tk.Entry(
-            form_frame,
-            width=30,
-            font=FUENTE_FORMULARIO
+        self.entry_apellido = ttk.Entry(
+            self.formulario,
+            width=32
         )
 
-        self.entry_apellido.grid(
-            row=1,
-            column=1,
-            pady=15
-        )
-
-        # =========================
-        # GÉNERO
-        # =========================
-
-        tk.Label(
-            form_frame,
+        self.label_genero = ttk.Label(
+            self.formulario,
             text="Género:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(
-            row=2,
-            column=0,
-            padx=15,
-            pady=15,
-            sticky="e"
+            style="Form.TLabel"
         )
 
         self.combo_genero = ttk.Combobox(
-            form_frame,
-            values=[
-                "femenino",
-                "masculino",
-                "otro"
-            ],
-            width=27,
+            self.formulario,
+            values=["femenino", "masculino", "otro"],
             state="readonly",
-            font=FUENTE_FORMULARIO
+            width=30
         )
 
-        self.combo_genero.grid(
-            row=2,
-            column=1,
-            pady=15
+        self.label_fecha = ttk.Label(
+            self.formulario,
+            text="Fecha nacimiento:",
+            style="Form.TLabel"
         )
+
+        self.entry_fecha = ttk.Entry(
+            self.formulario,
+            width=32
+        )
+
+        self.label_medico = ttk.Label(
+            self.formulario,
+            text="Médico responsable:",
+            style="Form.TLabel"
+        )
+
+        self.entry_medico = ttk.Entry(
+            self.formulario,
+            width=32
+        )
+
+        self.label_nombre.grid(row=0, column=0, padx=15, pady=12, sticky="e")
+        self.entry_nombre.grid(row=0, column=1, padx=15, pady=12)
+
+        self.label_apellido.grid(row=1, column=0, padx=15, pady=12, sticky="e")
+        self.entry_apellido.grid(row=1, column=1, padx=15, pady=12)
+
+        self.label_genero.grid(row=2, column=0, padx=15, pady=12, sticky="e")
+        self.combo_genero.grid(row=2, column=1, padx=15, pady=12)
+
+        self.label_fecha.grid(row=3, column=0, padx=15, pady=12, sticky="e")
+        self.entry_fecha.grid(row=3, column=1, padx=15, pady=12)
+
+        self.label_medico.grid(row=4, column=0, padx=15, pady=12, sticky="e")
+        self.entry_medico.grid(row=4, column=1, padx=15, pady=12)
 
         self.combo_genero.set("femenino")
-
-        # =========================
-        # FECHA NACIMIENTO
-        # =========================
-
-        tk.Label(
-            form_frame,
-            text="Fecha nacimiento:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(
-            row=3,
-            column=0,
-            padx=15,
-            pady=15,
-            sticky="e"
-        )
-
-        self.entry_fecha = tk.Entry(
-            form_frame,
-            width=30,
-            font=FUENTE_FORMULARIO
-        )
-
-        self.entry_fecha.grid(
-            row=3,
-            column=1,
-            pady=15
-        )
-
-        self.entry_fecha.insert(
-            0,
-            "1990-01-01"
-        )
-
-        # =========================
-        # MÉDICO CABECERA
-        # =========================
-
-        tk.Label(
-            form_frame,
-            text="Médico responsable:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_BLANCO
-        ).grid(
-            row=4,
-            column=0,
-            padx=15,
-            pady=15,
-            sticky="e"
-        )
-
-        self.entry_medico = tk.Entry(
-            form_frame,
-            width=30,
-            font=FUENTE_FORMULARIO
-        )
-
-        self.entry_medico.grid(
-            row=4,
-            column=1,
-            pady=15
-        )
-
-    # =========================================
-    # BOTONES
-    # =========================================
+        self.entry_fecha.insert(0, "1990-01-01")
 
     def crear_botones(self):
-
-        botones = tk.Frame(
-            self.card,
-            bg=COLOR_BLANCO
+        self.frame_botones = ttk.Frame(
+            self,
+            style="App.TFrame"
         )
 
-        botones.pack(pady=20)
+        self.frame_botones.pack(pady=20)
 
-        BotonExito(
-            botones,
-            text="💾 Guardar paciente",
-            command=self.guardar_paciente,
-            width=20
-        ).grid(
-            row=0,
-            column=0,
-            padx=15
+        self.boton_guardar = boton_exito(
+            self.frame_botones,
+            "Guardar paciente",
+            self.guardar_paciente
         )
 
-        BotonGris(
-            botones,
-            text="⬅️ Cancelar",
-            command=lambda: self.controller.show_frame("menu"),
-            width=18
-        ).grid(
-            row=0,
-            column=1,
-            padx=15
+        self.boton_cancelar = boton_gris(
+            self.frame_botones,
+            "Cancelar",
+            lambda: self.app.mostrar_vista("menu")
         )
 
-    # =========================================
-    # GUARDAR PACIENTE
-    # =========================================
+        self.boton_guardar.grid(row=0, column=0, padx=10)
+        self.boton_cancelar.grid(row=0, column=1, padx=10)
 
     def guardar_paciente(self):
-
         datos = {
-
             "nombre": self.entry_nombre.get().strip(),
-
             "apellido": self.entry_apellido.get().strip(),
-
             "género": self.combo_genero.get(),
-
             "fechaNacimiento": self.entry_fecha.get().strip(),
-
             "medico_cabecera": self.entry_medico.get().strip()
         }
 
         try:
-
-            self.controller.paciente_service.crear_paciente(
-                datos
-            )
+            self.app.paciente_controller.crear_paciente(datos)
 
             messagebox.showinfo(
                 "Paciente registrado",
@@ -296,35 +148,16 @@ class CrearPaciente(tk.Frame):
             )
 
             self.limpiar_formulario()
+            self.app.mostrar_vista("lista_pacientes")
 
-            self.controller.show_frame("menu")
-
-        except Exception as e:
-
-            messagebox.showerror(
-                "Error",
-                str(e)
-            )
-
-    # =========================================
-    # LIMPIAR FORMULARIO
-    # =========================================
+        except Exception as error:
+            messagebox.showerror("Error", str(error))
 
     def limpiar_formulario(self):
+        self.entry_nombre.delete(0, "end")
+        self.entry_apellido.delete(0, "end")
+        self.entry_fecha.delete(0, "end")
+        self.entry_medico.delete(0, "end")
 
-        self.entry_nombre.delete(0, tk.END)
-
-        self.entry_apellido.delete(0, tk.END)
-
-        self.entry_fecha.delete(0, tk.END)
-
-        self.entry_medico.delete(0, tk.END)
-
-        self.entry_fecha.insert(
-            0,
-            "1990-01-01"
-        )
-
-        self.combo_genero.set(
-            "femenino"
-        )
+        self.combo_genero.set("femenino")
+        self.entry_fecha.insert(0, "1990-01-01")

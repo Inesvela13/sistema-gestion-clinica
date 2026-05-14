@@ -4,7 +4,7 @@ from datetime import datetime
 from schemas.paciente_schema import PacienteSchema
 
 
-class PacienteService:
+class PacienteController:
 
     def __init__(self, paciente_repository):
         self.paciente_repository = paciente_repository
@@ -13,33 +13,21 @@ class PacienteService:
         return self.paciente_repository.obtener_todos()
 
     def crear_paciente(self, datos):
-
         paciente_validado = PacienteSchema(**datos)
 
         nuevo_paciente = {
-
             "_id": str(uuid.uuid4()),
-
             "nombre": paciente_validado.nombre,
-
             "apellido": paciente_validado.apellido,
-
             "género": paciente_validado.género,
-
             "fechaNacimiento": datetime.strptime(
                 paciente_validado.fechaNacimiento,
                 "%Y-%m-%d"
             ),
-
-            "médico_cabecera": paciente_validado.médico_cabecera
+            "medico_cabecera": paciente_validado.medico_cabecera
         }
 
-        self.paciente_repository.insertar(
-            nuevo_paciente
-        )
+        self.paciente_repository.insertar(nuevo_paciente)
 
     def eliminar_paciente(self, id_paciente):
-
-        self.paciente_repository.eliminar_por_id(
-            id_paciente
-        )
+        self.paciente_repository.eliminar_por_id(id_paciente)

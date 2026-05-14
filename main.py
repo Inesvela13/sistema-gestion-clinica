@@ -6,8 +6,13 @@ from dependencias.database import Database
 from repositories.paciente_repository import PacienteRepository
 from repositories.tension_repository import TensionRepository
 
-from services.paciente_service import PacienteService
 from services.tension_service import TensionService
+
+from controllers.paciente_controller import PacienteController
+from controllers.tension_controller import TensionController
+
+from views.styles import configurar_estilos
+from views.menu import MenuPrincipal
 
 from views.pacientes.lista_pacientes import ListaPacientes
 from views.pacientes.crear_paciente import CrearPaciente
@@ -15,214 +20,95 @@ from views.pacientes.crear_paciente import CrearPaciente
 from views.tensiones.lista_tensiones import ListaTensiones
 from views.tensiones.crear_tension import CrearTension
 
-from config.styles import (
-    COLOR_FONDO,
-    COLOR_BLANCO,
-    COLOR_PRIMARIO,
-    COLOR_PRIMARIO_OSCURO,
-    COLOR_EXITO,
-    COLOR_TENSION,
-    COLOR_TENSION_OSCURO,
-    COLOR_TEXTO,
-    COLOR_TEXTO_SECUNDARIO,
-    FUENTE_NORMAL,
-    FUENTE_NORMAL_NEGRITA
-)
-
-from widgets.botones import BotonPrimario, BotonExito, BotonTension
-
-
-class MenuPrincipal(tk.Frame):
-
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=COLOR_FONDO)
-
-        self.controller = controller
-
-        self.crear_titulo()
-        self.crear_panel()
-
-    def crear_titulo(self):
-        titulo = tk.Label(
-            self,
-            text="Sistema de Gestión Clínica",
-            font=("Segoe UI", 28, "bold"),
-            fg=COLOR_PRIMARIO,
-            bg=COLOR_FONDO
-        )
-
-        titulo.pack(pady=(40, 10))
-
-        subtitulo = tk.Label(
-            self,
-            text="Panel principal de administración médica",
-            font=("Segoe UI", 12),
-            fg=COLOR_TEXTO_SECUNDARIO,
-            bg=COLOR_FONDO
-        )
-
-        subtitulo.pack(pady=(0, 40))
-
-    def crear_panel(self):
-        panel = tk.Frame(
-            self,
-            bg=COLOR_BLANCO,
-            bd=1,
-            relief="solid"
-        )
-
-        panel.pack(pady=20, ipadx=40, ipady=30)
-
-        tk.Label(
-            panel,
-            text="Gestión de Pacientes",
-            font=("Segoe UI", 16, "bold"),
-            bg=COLOR_BLANCO,
-            fg=COLOR_TEXTO
-        ).pack(pady=(10, 20))
-
-        BotonPrimario(
-            panel,
-            text="👨‍⚕️ Ver Pacientes",
-            command=lambda: self.controller.show_frame("lista_pacientes"),
-            width=25
-        ).pack(pady=10)
-
-        BotonExito(
-            panel,
-            text="➕ Dar de Alta Paciente",
-            command=lambda: self.controller.show_frame("crear_paciente"),
-            width=25
-        ).pack(pady=10)
-
-        ttk.Separator(
-            panel,
-            orient="horizontal"
-        ).pack(fill="x", pady=30)
-
-        tk.Label(
-            panel,
-            text="Control de Tensión Arterial",
-            font=("Segoe UI", 16, "bold"),
-            bg=COLOR_BLANCO,
-            fg=COLOR_TEXTO
-        ).pack(pady=(0, 20))
-
-        BotonTension(
-            panel,
-            text="❤️ Ver Tensiones",
-            command=lambda: self.controller.show_frame("lista_tensiones"),
-            width=25
-        ).pack(pady=10)
-
-        BotonTension(
-            panel,
-            text="📈 Registrar Tensión",
-            command=lambda: self.controller.show_frame("crear_tension"),
-            width=25
-        ).pack(pady=10)
-
 
 class App(tk.Tk):
 
-    def __init__(self, paciente_service, tension_service):
+    def __init__(self):
         super().__init__()
 
         self.title("Sistema de Gestión Clínica")
         self.geometry("1200x720")
         self.minsize(1100, 650)
-        self.configure(bg=COLOR_FONDO)
 
-        self.paciente_service = paciente_service
-        self.tension_service = tension_service
+        configurar_estilos()
 
-        self.configurar_estilos()
+        self.crear_dependencias()
         self.crear_contenedor()
-        self.crear_frames()
+        self.crear_vistas()
 
-        self.show_frame("menu")
+        self.mostrar_vista("menu")
 
-    def configurar_estilos(self):
-        style = ttk.Style()
+    def crear_dependencias(self):
+        self.database = Database()
 
-        style.theme_use("clam")
-
-        style.configure(
-            "Treeview",
-            background=COLOR_BLANCO,
-            foreground=COLOR_TEXTO,
-            fieldbackground=COLOR_BLANCO,
-            rowheight=35,
-            borderwidth=0,
-            font=FUENTE_NORMAL
+        self.paciente_repository = PacienteRepository(
+            self.database
         )
 
-        style.configure(
-            "Treeview.Heading",
-            background=COLOR_PRIMARIO,
-            foreground=COLOR_BLANCO,
-            font=("Segoe UI", 11, "bold"),
-            padding=10,
-            relief="flat"
+        self.tension_repository = TensionRepository(
+            self.database
         )
 
-        style.map(
-            "Treeview",
-            background=[("selected", "#90CAF9")],
-            foreground=[("selected", COLOR_PRIMARIO_OSCURO)]
+        self.tension_service = TensionService()
+
+        self.paciente_controller = PacienteController(
+            self.paciente_repository
         )
 
-        style.configure(
-            "TCombobox",
-            fieldbackground=COLOR_BLANCO,
-            background=COLOR_BLANCO,
-            foreground=COLOR_TEXTO
+        self.tension_controller = TensionController(
+            self.paciente_repository,
+            self.tension_repository,
+            self.tension_service
         )
 
     def crear_contenedor(self):
-        self.container = tk.Frame(
+        self.contenedor = ttk.Frame(
             self,
-            bg=COLOR_FONDO
+            style="App.TFrame"
         )
 
-        self.container.pack(fill="both", expand=True)
+        self.contenedor.pack(
+            fill="both",
+            expand=True
+        )
 
-        self.container.grid_rowconfigure(0, weight=1)
-        self.container.grid_columnconfigure(0, weight=1)
+        self.contenedor.grid_rowconfigure(
+            0,
+            weight=1
+        )
 
-    def crear_frames(self):
+        self.contenedor.grid_columnconfigure(
+            0,
+            weight=1
+        )
+
+    def crear_vistas(self):
+        self.vistas = {
+            "menu": MenuPrincipal,
+            "lista_pacientes": ListaPacientes,
+            "crear_paciente": CrearPaciente,
+            "lista_tensiones": ListaTensiones,
+            "crear_tension": CrearTension
+        }
+
         self.frames = {}
 
-        self.frames["menu"] = MenuPrincipal(
-            self.container,
-            self
-        )
+        for nombre, clase_vista in self.vistas.items():
+            frame = clase_vista(
+                self.contenedor,
+                self
+            )
 
-        self.frames["lista_pacientes"] = ListaPacientes(
-            self.container,
-            self
-        )
+            self.frames[nombre] = frame
 
-        self.frames["crear_paciente"] = CrearPaciente(
-            self.container,
-            self
-        )
+            frame.grid(
+                row=0,
+                column=0,
+                sticky="nsew"
+            )
 
-        self.frames["lista_tensiones"] = ListaTensiones(
-            self.container,
-            self
-        )
-
-        self.frames["crear_tension"] = CrearTension(
-            self.container,
-            self
-        )
-
-        for frame in self.frames.values():
-            frame.grid(row=0, column=0, sticky="nsew")
-
-    def show_frame(self, nombre_frame):
-        frame = self.frames[nombre_frame]
+    def mostrar_vista(self, nombre_vista):
+        frame = self.frames[nombre_vista]
 
         if hasattr(frame, "actualizar_datos"):
             frame.actualizar_datos()
@@ -231,24 +117,5 @@ class App(tk.Tk):
 
 
 if __name__ == "__main__":
-
-    db = Database()
-
-    paciente_repository = PacienteRepository(db)
-    tension_repository = TensionRepository(db)
-
-    paciente_service = PacienteService(
-        paciente_repository
-    )
-
-    tension_service = TensionService(
-        tension_repository,
-        paciente_repository
-    )
-
-    app = App(
-        paciente_service,
-        tension_service
-    )
-
+    app = App()
     app.mainloop()

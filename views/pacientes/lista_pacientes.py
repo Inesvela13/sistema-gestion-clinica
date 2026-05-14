@@ -1,28 +1,20 @@
-import tkinter as tk
 from tkinter import ttk, messagebox
 
-from config.styles import (
-    COLOR_FONDO,
-    COLOR_PRIMARIO,
-    FUENTE_TITULO,
-    FUENTE_FORMULARIO,
-    FUENTE_FORMULARIO_NEGRITA
+from views.components.botones import (
+    boton_exito,
+    boton_error,
+    boton_gris
 )
 
-from widgets.botones import (
-    BotonExito,
-    BotonError,
-    BotonGris
-)
+from views.components.tablas import crear_tabla
 
 
-class ListaPacientes(tk.Frame):
+class ListaPacientes(ttk.Frame):
 
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=COLOR_FONDO)
+    def __init__(self, parent, app):
+        super().__init__(parent, style="App.TFrame")
 
-        self.controller = controller
-
+        self.app = app
         self.ids_pacientes = {}
 
         self.crear_titulo()
@@ -30,77 +22,42 @@ class ListaPacientes(tk.Frame):
         self.crear_tabla()
         self.crear_botones()
 
-    # =========================================
-    # TÍTULO
-    # =========================================
-
     def crear_titulo(self):
-
-        titulo = tk.Label(
+        self.label_titulo = ttk.Label(
             self,
             text="Gestión de Pacientes",
-            font=FUENTE_TITULO,
-            bg=COLOR_FONDO,
-            fg=COLOR_PRIMARIO
+            style="Title.TLabel"
         )
 
-        titulo.pack(pady=20)
-
-    # =========================================
-    # BUSCADOR
-    # =========================================
+        self.label_titulo.pack(pady=20)
 
     def crear_buscador(self):
-
-        buscador_frame = tk.Frame(
+        self.frame_buscador = ttk.Frame(
             self,
-            bg=COLOR_FONDO
+            style="App.TFrame"
         )
 
-        buscador_frame.pack(
-            fill="x",
-            padx=30
+        self.frame_buscador.pack(fill="x", padx=40)
+
+        self.label_buscar = ttk.Label(
+            self.frame_buscador,
+            text="Buscar paciente:"
         )
 
-        tk.Label(
-            buscador_frame,
-            text="Buscar paciente:",
-            font=FUENTE_FORMULARIO_NEGRITA,
-            bg=COLOR_FONDO
-        ).pack(side="left")
-
-        self.entry_busqueda = tk.Entry(
-            buscador_frame,
-            font=FUENTE_FORMULARIO,
-            width=30
+        self.entry_busqueda = ttk.Entry(
+            self.frame_buscador,
+            width=35
         )
 
-        self.entry_busqueda.pack(
-            side="left",
-            padx=10
-        )
+        self.label_buscar.grid(row=0, column=0, padx=5, pady=5)
+        self.entry_busqueda.grid(row=0, column=1, padx=5, pady=5)
 
         self.entry_busqueda.bind(
             "<KeyRelease>",
-            lambda evento: self.cargar()
+            lambda evento: self.cargar_datos()
         )
-
-    # =========================================
-    # TABLA
-    # =========================================
 
     def crear_tabla(self):
-
-        tabla_frame = tk.Frame(
-            self,
-            bg=COLOR_FONDO
-        )
-
-        tabla_frame.pack(
-            padx=30,
-            pady=20
-        )
-
         columnas = (
             "Nombre",
             "Genero",
@@ -108,183 +65,81 @@ class ListaPacientes(tk.Frame):
             "Medico"
         )
 
-        self.tree = ttk.Treeview(
-            tabla_frame,
-            columns=columnas,
-            show="headings",
-            height=12
+        encabezados = {
+            "Nombre": "Nombre completo",
+            "Genero": "Género",
+            "Fecha": "Fecha nacimiento",
+            "Medico": "Médico responsable"
+        }
+
+        anchos = {
+            "Nombre": 300,
+            "Genero": 150,
+            "Fecha": 170,
+            "Medico": 250
+        }
+
+        self.frame_tabla, self.tabla = crear_tabla(
+            self,
+            columnas,
+            encabezados,
+            anchos,
+            alto=12
         )
 
-        # =========================
-        # CABECERAS
-        # =========================
-
-        self.tree.heading(
-            "Nombre",
-            text="Nombre completo"
-        )
-
-        self.tree.heading(
-            "Genero",
-            text="Género"
-        )
-
-        self.tree.heading(
-            "Fecha",
-            text="Fecha nacimiento"
-        )
-
-        self.tree.heading(
-            "Medico",
-            text="Médico responsable"
-        )
-
-        # =========================
-        # COLUMNAS
-        # =========================
-
-        self.tree.column(
-            "Nombre",
-            width=320
-        )
-
-        self.tree.column(
-            "Genero",
-            width=150,
-            anchor="center"
-        )
-
-        self.tree.column(
-            "Fecha",
-            width=180,
-            anchor="center"
-        )
-
-        self.tree.column(
-            "Medico",
-            width=260
-        )
-
-        self.tree.pack(side="left")
-
-        # =========================
-        # SCROLLBAR
-        # =========================
-
-        scrollbar = ttk.Scrollbar(
-            tabla_frame,
-            orient="vertical",
-            command=self.tree.yview
-        )
-
-        self.tree.configure(
-            yscrollcommand=scrollbar.set
-        )
-
-        scrollbar.pack(
-            side="right",
-            fill="y"
-        )
-
-    # =========================================
-    # BOTONES
-    # =========================================
+        self.frame_tabla.pack(padx=40, pady=20)
 
     def crear_botones(self):
-
-        botones = tk.Frame(
+        self.frame_botones = ttk.Frame(
             self,
-            bg=COLOR_FONDO
+            style="App.TFrame"
         )
 
-        botones.pack(pady=20)
+        self.frame_botones.pack(pady=15)
 
-        # =========================
-        # DAR DE ALTA
-        # =========================
-
-        BotonExito(
-            botones,
-            text="➕ Dar de alta",
-            command=lambda: self.controller.show_frame(
-                "crear_paciente"
-            )
-        ).grid(
-            row=0,
-            column=0,
-            padx=10
+        self.boton_alta = boton_exito(
+            self.frame_botones,
+            "Dar de alta",
+            lambda: self.app.mostrar_vista("crear_paciente")
         )
 
-        # =========================
-        # DAR DE BAJA
-        # =========================
-
-        BotonError(
-            botones,
-            text="❌ Dar de baja",
-            command=self.eliminar
-        ).grid(
-            row=0,
-            column=1,
-            padx=10
+        self.boton_baja = boton_error(
+            self.frame_botones,
+            "Dar de baja",
+            self.eliminar_paciente
         )
 
-        # =========================
-        # VOLVER
-        # =========================
-
-        BotonGris(
-            botones,
-            text="⬅️ Volver",
-            command=lambda: self.controller.show_frame(
-                "menu"
-            )
-        ).grid(
-            row=0,
-            column=2,
-            padx=10
+        self.boton_volver = boton_gris(
+            self.frame_botones,
+            "Volver",
+            lambda: self.app.mostrar_vista("menu")
         )
 
-    # =========================================
-    # ACTUALIZAR DATOS
-    # =========================================
+        self.boton_alta.grid(row=0, column=0, padx=10)
+        self.boton_baja.grid(row=0, column=1, padx=10)
+        self.boton_volver.grid(row=0, column=2, padx=10)
 
     def actualizar_datos(self):
+        self.cargar_datos()
 
-        self.cargar()
-
-    # =========================================
-    # CARGAR PACIENTES
-    # =========================================
-
-    def cargar(self):
-
+    def cargar_datos(self):
         self.limpiar_tabla()
 
         texto_busqueda = self.entry_busqueda.get().lower()
-
-        pacientes = self.controller.paciente_service.obtener_pacientes()
+        pacientes = self.app.paciente_controller.obtener_pacientes()
 
         for paciente in pacientes:
-
-            nombre_completo = self.obtener_nombre_completo(
-                paciente
-            )
+            nombre_completo = self.obtener_nombre_completo(paciente)
 
             if texto_busqueda not in nombre_completo.lower():
                 continue
 
             genero = self.formatear_genero(
-                paciente.get(
-                    "género",
-                    "No especificado"
-                )
+                paciente.get("género", paciente.get("genero", "No especificado"))
             )
 
             fecha = self.formatear_fecha(
-                paciente.get(
-                    "fechaNacimiento"
-                )
+                paciente.get("fechaNacimiento")
             )
 
             medico = paciente.get(
@@ -292,7 +147,7 @@ class ListaPacientes(tk.Frame):
                 "Sin asignar"
             )
 
-            item = self.tree.insert(
+            item = self.tabla.insert(
                 "",
                 "end",
                 values=(
@@ -305,98 +160,63 @@ class ListaPacientes(tk.Frame):
 
             self.ids_pacientes[item] = paciente.get("_id")
 
-    # =========================================
-    # LIMPIAR TABLA
-    # =========================================
-
     def limpiar_tabla(self):
-
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        for item in self.tabla.get_children():
+            self.tabla.delete(item)
 
         self.ids_pacientes.clear()
 
-    # =========================================
-    # NOMBRE COMPLETO
-    # =========================================
-
     def obtener_nombre_completo(self, paciente):
-
         return (
             f"{paciente.get('nombre', '')} "
             f"{paciente.get('apellido', '')}"
         ).strip()
 
-    # =========================================
-    # FORMATEAR GÉNERO
-    # =========================================
-
     def formatear_genero(self, genero):
-
         if not genero:
             return "No especificado"
 
         if genero.lower() == "femenino":
-            return "👩 Femenino"
+            return "Femenino"
 
         if genero.lower() == "masculino":
-            return "👨 Masculino"
+            return "Masculino"
 
         if genero.lower() == "otro":
-            return "⚧ Otro"
+            return "Otro"
 
         return genero.capitalize()
 
-    # =========================================
-    # FORMATEAR FECHA
-    # =========================================
-
     def formatear_fecha(self, fecha):
-
         if not fecha:
             return ""
 
         return fecha.strftime("%d/%m/%Y")
 
-    # =========================================
-    # ELIMINAR PACIENTE
-    # =========================================
-
-    def eliminar(self):
-
-        seleccionado = self.tree.focus()
+    def eliminar_paciente(self):
+        seleccionado = self.tabla.focus()
 
         if not seleccionado:
-
             messagebox.showwarning(
                 "Aviso",
                 "Seleccione un paciente"
             )
-
             return
 
-        id_paciente = self.ids_pacientes[
-            seleccionado
-        ]
-
-        nombre = self.tree.item(
-            seleccionado
-        )["values"][0]
+        id_paciente = self.ids_pacientes[seleccionado]
+        nombre = self.tabla.item(seleccionado)["values"][0]
 
         confirmar = messagebox.askyesno(
             "Confirmar baja",
-            f"¿Desea dar de baja al paciente?\n\n{nombre}\n\nEsta acción no se puede deshacer."
+            f"¿Desea dar de baja al paciente?\n\n{nombre}"
         )
 
         if confirmar:
-
-            self.controller.paciente_service.eliminar_paciente(
-                id_paciente
-            )
+            self.app.paciente_controller.eliminar_paciente(id_paciente)
 
             messagebox.showinfo(
                 "Paciente eliminado",
                 "El paciente ha sido dado de baja correctamente"
             )
 
-            self.cargar()
+            self.cargar_datos()

@@ -1,21 +1,20 @@
-import tkinter as tk
 from tkinter import ttk, messagebox
 
-from config.styles import (
-    COLOR_FONDO,
-    COLOR_TENSION,
-    FUENTE_TITULO
+from views.components.botones import (
+    boton_tension,
+    boton_error,
+    boton_gris
 )
 
-from widgets.botones import BotonTension, BotonError, BotonGris
+from views.components.tablas import crear_tabla
 
 
-class ListaTensiones(tk.Frame):
+class ListaTensiones(ttk.Frame):
 
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=COLOR_FONDO)
+    def __init__(self, parent, app):
+        super().__init__(parent, style="App.TFrame")
 
-        self.controller = controller
+        self.app = app
         self.ids_tensiones = {}
 
         self.crear_titulo()
@@ -23,102 +22,90 @@ class ListaTensiones(tk.Frame):
         self.crear_botones()
 
     def crear_titulo(self):
-        titulo = tk.Label(
+        self.label_titulo = ttk.Label(
             self,
             text="Registro de Tensiones",
-            font=FUENTE_TITULO,
-            fg=COLOR_TENSION,
-            bg=COLOR_FONDO
+            style="TensionTitle.TLabel"
         )
 
-        titulo.pack(pady=25)
+        self.label_titulo.pack(pady=25)
 
     def crear_tabla(self):
-        tabla_frame = tk.Frame(
-            self,
-            bg=COLOR_FONDO
-        )
-
-        tabla_frame.pack(padx=30, pady=10)
-
         columnas = (
             "Paciente",
             "Sistolica",
             "Diastolica",
             "Valoracion",
-            "Estado"
+            "Estado",
+            "Rango"
         )
 
-        self.tree = ttk.Treeview(
-            tabla_frame,
-            columns=columnas,
-            show="headings",
-            height=14
+        encabezados = {
+            "Paciente": "Paciente",
+            "Sistolica": "Sistólica",
+            "Diastolica": "Diastólica",
+            "Valoracion": "Valoración",
+            "Estado": "Estado",
+            "Rango": "En rango"
+        }
+
+        anchos = {
+            "Paciente": 260,
+            "Sistolica": 120,
+            "Diastolica": 120,
+            "Valoracion": 260,
+            "Estado": 120,
+            "Rango": 120
+        }
+
+        self.frame_tabla, self.tabla = crear_tabla(
+            self,
+            columnas,
+            encabezados,
+            anchos,
+            alto=13
         )
 
-        self.tree.heading("Paciente", text="Paciente")
-        self.tree.heading("Sistolica", text="Sistólica")
-        self.tree.heading("Diastolica", text="Diastólica")
-        self.tree.heading("Valoracion", text="Valoración")
-        self.tree.heading("Estado", text="Estado")
-
-        self.tree.column("Paciente", width=260)
-        self.tree.column("Sistolica", width=130, anchor="center")
-        self.tree.column("Diastolica", width=130, anchor="center")
-        self.tree.column("Valoracion", width=300)
-        self.tree.column("Estado", width=130, anchor="center")
-
-        self.tree.pack(side="left")
-
-        scrollbar = ttk.Scrollbar(
-            tabla_frame,
-            orient="vertical",
-            command=self.tree.yview
-        )
-
-        self.tree.configure(
-            yscrollcommand=scrollbar.set
-        )
-
-        scrollbar.pack(side="right", fill="y")
+        self.frame_tabla.pack(padx=40, pady=20)
 
     def crear_botones(self):
-        botones = tk.Frame(
+        self.frame_botones = ttk.Frame(
             self,
-            bg=COLOR_FONDO
+            style="App.TFrame"
         )
 
-        botones.pack(pady=25)
+        self.frame_botones.pack(pady=15)
 
-        BotonTension(
-            botones,
-            text="➕ Registrar tensión",
-            command=lambda: self.controller.show_frame("crear_tension"),
-            width=20
-        ).grid(row=0, column=0, padx=10)
+        self.boton_registrar = boton_tension(
+            self.frame_botones,
+            "Registrar tensión",
+            lambda: self.app.mostrar_vista("crear_tension")
+        )
 
-        BotonError(
-            botones,
-            text="❌ Dar de baja",
-            command=self.eliminar,
-            width=18
-        ).grid(row=0, column=1, padx=10)
+        self.boton_baja = boton_error(
+            self.frame_botones,
+            "Dar de baja",
+            self.eliminar_tension
+        )
 
-        BotonGris(
-            botones,
-            text="⬅️ Volver",
-            command=lambda: self.controller.show_frame("menu"),
-            width=18
-        ).grid(row=0, column=2, padx=10)
+        self.boton_volver = boton_gris(
+            self.frame_botones,
+            "Volver",
+            lambda: self.app.mostrar_vista("menu")
+        )
+
+        self.boton_registrar.grid(row=0, column=0, padx=10)
+        self.boton_baja.grid(row=0, column=1, padx=10)
+        self.boton_volver.grid(row=0, column=2, padx=10)
 
     def actualizar_datos(self):
-        self.cargar()
+        self.cargar_datos()
 
-    def cargar(self):
+    def cargar_datos(self):
         self.limpiar_tabla()
 
-        pacientes = self.controller.paciente_service.obtener_pacientes()
-        tensiones = self.controller.tension_service.obtener_tensiones()
+        pacientes = self.app.tension_controller.obtener_pacientes()
+        tensiones = self.app.tension_controller.obtener_tensiones()
 
         mapa_pacientes = {
             paciente.get("_id"): (
@@ -138,31 +125,42 @@ class ListaTensiones(tk.Frame):
 
             valores = tension.get("valores", {})
 
-            sistolica = valores.get("sistólica", valores.get("sistolica", "-"))
-            diastolica = valores.get("diastólica", valores.get("diastolica", "-"))
+            sistolica = valores.get("sistolica", "-")
+            diastolica = valores.get("diastolica", "-")
+            valoracion = tension.get("valoracion", "-")
+            estado = tension.get("estado", "-")
+            valor_en_rango = tension.get("valor_en_rango", "-")
 
-            item = self.tree.insert(
+            if valor_en_rango is True:
+                texto_rango = "Sí"
+            elif valor_en_rango is False:
+                texto_rango = "No"
+            else:
+                texto_rango = "-"
+
+            item = self.tabla.insert(
                 "",
                 "end",
                 values=(
                     nombre_paciente,
                     sistolica,
                     diastolica,
-                    tension.get("valoración", tension.get("valoracion", "-")),
-                    tension.get("estado", "-")
+                    valoracion,
+                    estado,
+                    texto_rango
                 )
             )
 
             self.ids_tensiones[item] = tension.get("_id")
 
     def limpiar_tabla(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        for item in self.tabla.get_children():
+            self.tabla.delete(item)
 
         self.ids_tensiones.clear()
 
-    def eliminar(self):
-        seleccionado = self.tree.focus()
+    def eliminar_tension(self):
+        seleccionado = self.tabla.focus()
 
         if not seleccionado:
             messagebox.showwarning(
@@ -172,10 +170,7 @@ class ListaTensiones(tk.Frame):
             return
 
         id_tension = self.ids_tensiones[seleccionado]
-
-        paciente = self.tree.item(
-            seleccionado
-        )["values"][0]
+        paciente = self.tabla.item(seleccionado)["values"][0]
 
         confirmar = messagebox.askyesno(
             "Confirmar baja",
@@ -183,13 +178,11 @@ class ListaTensiones(tk.Frame):
         )
 
         if confirmar:
-            self.controller.tension_service.eliminar_tension(
-                id_tension
-            )
+            self.app.tension_controller.eliminar_tension(id_tension)
 
             messagebox.showinfo(
                 "Registro eliminado",
                 "La tensión arterial ha sido eliminada correctamente"
             )
 
-            self.cargar()
+            self.cargar_datos()
