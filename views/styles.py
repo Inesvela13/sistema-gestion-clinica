@@ -1,27 +1,36 @@
 from tkinter import ttk
 
-COLOR_FONDO = "#F5F7FA"
-COLOR_BLANCO = "#FFFFFF"
-COLOR_PRIMARIO = "#1565C0"
-COLOR_PRIMARIO_OSCURO = "#0D47A1"
-COLOR_EXITO = "#2E7D32"
-COLOR_ERROR = "#C62828"
-COLOR_GRIS = "#757575"
-COLOR_TENSION = "#AD1457"
-COLOR_TEXTO = "#37474F"
-COLOR_TEXTO_SECUNDARIO = "#607D8B"
 
-FUENTE_TITULO = ("Segoe UI", 22, "bold")
-FUENTE_SUBTITULO = ("Segoe UI", 14, "bold")
-FUENTE_NORMAL = ("Segoe UI", 10)
-FUENTE_NORMAL_NEGRITA = ("Segoe UI", 10, "bold")
-FUENTE_FORMULARIO = ("Segoe UI", 11)
-FUENTE_FORMULARIO_NEGRITA = ("Segoe UI", 11, "bold")
+COLOR_FONDO = "#F4F6F9"
+
+COLOR_SIDEBAR = "#0D2C54"
+
+COLOR_AZUL = "#1565C0"
+
+COLOR_VERDE = "#2E7D32"
+
+COLOR_ROSA = "#C2185B"
+
+COLOR_GRIS = "#5F6368"
+
+COLOR_BLANCO = "#FFFFFF"
+
+FUENTE_TITULO = ("Segoe UI", 30, "bold")
+
+FUENTE_SUBTITULO = ("Segoe UI", 13)
+
+FUENTE_CARD = ("Segoe UI", 20, "bold")
+
+FUENTE_BOTON = ("Segoe UI", 12, "bold")
 
 
 def configurar_estilos():
+
     style = ttk.Style()
+
     style.theme_use("clam")
+
+    # FONDOS
 
     style.configure(
         "App.TFrame",
@@ -29,111 +38,144 @@ def configurar_estilos():
     )
 
     style.configure(
-        "Card.TFrame",
-        background=COLOR_BLANCO,
-        relief="solid",
-        borderwidth=1
+        "Sidebar.TFrame",
+        background=COLOR_SIDEBAR
     )
 
     style.configure(
-        "Title.TLabel",
+        "Content.TFrame",
+        background=COLOR_FONDO
+    )
+
+    style.configure(
+        "Card.TFrame",
+        background=COLOR_BLANCO,
+        relief="flat",
+        borderwidth=0
+    )
+
+    # TITULOS
+
+    style.configure(
+        "SidebarTitle.TLabel",
+        background=COLOR_SIDEBAR,
+        foreground=COLOR_BLANCO,
+        font=("Segoe UI", 24, "bold")
+    )
+
+    style.configure(
+        "SidebarText.TLabel",
+        background=COLOR_SIDEBAR,
+        foreground=COLOR_BLANCO,
+        font=("Segoe UI", 12)
+    )
+
+    style.configure(
+        "DashboardTitle.TLabel",
         background=COLOR_FONDO,
-        foreground=COLOR_PRIMARIO,
+        foreground="#1E3A5F",
         font=FUENTE_TITULO
+    )
+
+    style.configure(
+        "DashboardSubtitle.TLabel",
+        background=COLOR_FONDO,
+        foreground="#616161",
+        font=FUENTE_SUBTITULO
+    )
+
+    style.configure(
+        "CardTitle.TLabel",
+        background=COLOR_BLANCO,
+        foreground=COLOR_AZUL,
+        font=FUENTE_CARD
+    )
+
+    style.configure(
+        "CardTitlePink.TLabel",
+        background=COLOR_BLANCO,
+        foreground=COLOR_ROSA,
+        font=FUENTE_CARD
+    )
+
+    # BOTONES AZULES
+
+    style.configure(
+        "Primary.TButton",
+        background=COLOR_AZUL,
+        foreground=COLOR_BLANCO,
+        font=FUENTE_BOTON,
+        padding=14,
+        borderwidth=0
+    )
+
+    style.map(
+        "Primary.TButton",
+        background=[("active", "#1976D2")]
+    )
+
+    # BOTONES VERDES
+
+    style.configure(
+        "Success.TButton",
+        background=COLOR_VERDE,
+        foreground=COLOR_BLANCO,
+        font=FUENTE_BOTON,
+        padding=14,
+        borderwidth=0
+    )
+
+    style.map(
+        "Success.TButton",
+        background=[("active", "#388E3C")]
+    )
+
+    # BOTONES ROSAS
+
+    style.configure(
+        "Tension.TButton",
+        background=COLOR_ROSA,
+        foreground=COLOR_BLANCO,
+        font=FUENTE_BOTON,
+        padding=14,
+        borderwidth=0
+    )
+
+    style.map(
+        "Tension.TButton",
+        background=[("active", "#D81B60")]
+    )
+
+    # BOTONES GRISES
+
+    style.configure(
+        "Secondary.TButton",
+        background="#ECEFF1",
+        foreground="#37474F",
+        font=FUENTE_BOTON,
+        padding=14,
+        borderwidth=0
+    )
+
+    # LABELS GENERALES
+
+    style.configure(
+        "Form.TLabel",
+        background=COLOR_FONDO,
+        foreground="#263238",
+        font=("Segoe UI", 12, "bold")
+    )
+
+    style.configure(
+        "Info.TLabel",
+        background=COLOR_BLANCO,
+        foreground="#37474F",
+        font=("Segoe UI", 12)
     )
 
     style.configure(
         "TensionTitle.TLabel",
         background=COLOR_FONDO,
-        foreground=COLOR_TENSION,
-        font=FUENTE_TITULO
-    )
-
-    style.configure(
-        "Form.TLabel",
-        background=COLOR_BLANCO,
-        foreground=COLOR_TEXTO,
-        font=FUENTE_FORMULARIO_NEGRITA
-    )
-
-    style.configure(
-        "Subtitle.TLabel",
-        background=COLOR_BLANCO,
-        foreground=COLOR_TEXTO,
-        font=FUENTE_SUBTITULO
-    )
-
-    style.configure(
-        "TEntry",
-        font=FUENTE_FORMULARIO,
-        padding=5
-    )
-
-    style.configure(
-        "TCombobox",
-        font=FUENTE_FORMULARIO,
-        padding=5
-    )
-
-    style.configure(
-        "Primary.TButton",
-        background=COLOR_PRIMARIO,
-        foreground=COLOR_BLANCO,
-        font=FUENTE_NORMAL_NEGRITA,
-        padding=8
-    )
-
-    style.configure(
-        "Success.TButton",
-        background=COLOR_EXITO,
-        foreground=COLOR_BLANCO,
-        font=FUENTE_NORMAL_NEGRITA,
-        padding=8
-    )
-
-    style.configure(
-        "Danger.TButton",
-        background=COLOR_ERROR,
-        foreground=COLOR_BLANCO,
-        font=FUENTE_NORMAL_NEGRITA,
-        padding=8
-    )
-
-    style.configure(
-        "Grey.TButton",
-        background=COLOR_GRIS,
-        foreground=COLOR_BLANCO,
-        font=FUENTE_NORMAL_NEGRITA,
-        padding=8
-    )
-
-    style.configure(
-        "Tension.TButton",
-        background=COLOR_TENSION,
-        foreground=COLOR_BLANCO,
-        font=FUENTE_NORMAL_NEGRITA,
-        padding=8
-    )
-
-    style.configure(
-        "Treeview",
-        background=COLOR_BLANCO,
-        fieldbackground=COLOR_BLANCO,
-        foreground=COLOR_TEXTO,
-        rowheight=34,
-        font=FUENTE_NORMAL
-    )
-
-    style.configure(
-        "Treeview.Heading",
-        background=COLOR_PRIMARIO,
-        foreground=COLOR_BLANCO,
-        font=("Segoe UI", 11, "bold"),
-        padding=8
-    )
-
-    style.map(
-        "Treeview",
-        background=[("selected", "#90CAF9")],
-        foreground=[("selected", COLOR_PRIMARIO_OSCURO)]
+        foreground=COLOR_ROSA,
+        font=("Segoe UI", 26, "bold")
     )

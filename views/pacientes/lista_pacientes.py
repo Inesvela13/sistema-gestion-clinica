@@ -3,7 +3,9 @@ from tkinter import ttk, messagebox
 from views.components.botones import (
     boton_exito,
     boton_error,
-    boton_gris
+    boton_gris,
+    boton_primario,
+    boton_secundario
 )
 
 from views.components.tablas import crear_tabla
@@ -23,21 +25,28 @@ class ListaPacientes(ttk.Frame):
         self.crear_botones()
 
     def crear_titulo(self):
+
         self.label_titulo = ttk.Label(
             self,
             text="Gestión de Pacientes",
             style="Title.TLabel"
         )
 
-        self.label_titulo.pack(pady=20)
+        self.label_titulo.pack(
+            pady=20
+        )
 
     def crear_buscador(self):
+
         self.frame_buscador = ttk.Frame(
             self,
             style="App.TFrame"
         )
 
-        self.frame_buscador.pack(fill="x", padx=40)
+        self.frame_buscador.pack(
+            fill="x",
+            padx=40
+        )
 
         self.label_buscar = ttk.Label(
             self.frame_buscador,
@@ -49,8 +58,19 @@ class ListaPacientes(ttk.Frame):
             width=35
         )
 
-        self.label_buscar.grid(row=0, column=0, padx=5, pady=5)
-        self.entry_busqueda.grid(row=0, column=1, padx=5, pady=5)
+        self.label_buscar.grid(
+            row=0,
+            column=0,
+            padx=5,
+            pady=5
+        )
+
+        self.entry_busqueda.grid(
+            row=0,
+            column=1,
+            padx=5,
+            pady=5
+        )
 
         self.entry_busqueda.bind(
             "<KeyRelease>",
@@ -58,6 +78,7 @@ class ListaPacientes(ttk.Frame):
         )
 
     def crear_tabla(self):
+
         columnas = (
             "Nombre",
             "Genero",
@@ -87,20 +108,40 @@ class ListaPacientes(ttk.Frame):
             alto=12
         )
 
-        self.frame_tabla.pack(padx=40, pady=20)
+        self.frame_tabla.pack(
+            padx=40,
+            pady=20
+        )
 
     def crear_botones(self):
+
         self.frame_botones = ttk.Frame(
             self,
             style="App.TFrame"
         )
 
-        self.frame_botones.pack(pady=15)
+        self.frame_botones.pack(
+            pady=15
+        )
 
         self.boton_alta = boton_exito(
             self.frame_botones,
             "Dar de alta",
-            lambda: self.app.mostrar_vista("crear_paciente")
+            lambda: self.app.mostrar_vista(
+                "crear_paciente"
+            )
+        )
+
+        self.boton_detalle = boton_secundario(
+            self.frame_botones,
+            "Ver detalle",
+            self.ver_detalle
+        )
+
+        self.boton_editar = boton_primario(
+            self.frame_botones,
+            "Editar paciente",
+            self.editar_paciente
         )
 
         self.boton_baja = boton_error(
@@ -112,34 +153,83 @@ class ListaPacientes(ttk.Frame):
         self.boton_volver = boton_gris(
             self.frame_botones,
             "Volver",
-            lambda: self.app.mostrar_vista("menu")
+            lambda: self.app.mostrar_vista(
+                "menu"
+            )
         )
 
-        self.boton_alta.grid(row=0, column=0, padx=10)
-        self.boton_baja.grid(row=0, column=1, padx=10)
-        self.boton_volver.grid(row=0, column=2, padx=10)
+        self.boton_alta.grid(
+            row=0,
+            column=0,
+            padx=10
+        )
+
+        self.boton_detalle.grid(
+            row=0,
+            column=1,
+            padx=10
+        )
+
+        self.boton_editar.grid(
+            row=0,
+            column=2,
+            padx=10
+        )
+
+        self.boton_baja.grid(
+            row=0,
+            column=3,
+            padx=10
+        )
+
+        self.boton_volver.grid(
+            row=0,
+            column=4,
+            padx=10
+        )
 
     def actualizar_datos(self):
+
         self.cargar_datos()
 
     def cargar_datos(self):
+
         self.limpiar_tabla()
 
-        texto_busqueda = self.entry_busqueda.get().lower()
-        pacientes = self.app.paciente_controller.obtener_pacientes()
+        texto_busqueda = (
+            self.entry_busqueda.get().lower()
+        )
+
+        pacientes = (
+            self.app.paciente_controller
+            .obtener_pacientes()
+        )
 
         for paciente in pacientes:
-            nombre_completo = self.obtener_nombre_completo(paciente)
+
+            nombre_completo = (
+                self.obtener_nombre_completo(
+                    paciente
+                )
+            )
 
             if texto_busqueda not in nombre_completo.lower():
                 continue
 
             genero = self.formatear_genero(
-                paciente.get("género", paciente.get("genero", "No especificado"))
+                paciente.get(
+                    "género",
+                    paciente.get(
+                        "genero",
+                        "No especificado"
+                    )
+                )
             )
 
             fecha = self.formatear_fecha(
-                paciente.get("fechaNacimiento")
+                paciente.get(
+                    "fechaNacimiento"
+                )
             )
 
             medico = paciente.get(
@@ -158,21 +248,32 @@ class ListaPacientes(ttk.Frame):
                 )
             )
 
-            self.ids_pacientes[item] = paciente.get("_id")
+            self.ids_pacientes[item] = (
+                paciente.get("_id")
+            )
 
     def limpiar_tabla(self):
+
         for item in self.tabla.get_children():
             self.tabla.delete(item)
 
         self.ids_pacientes.clear()
 
-    def obtener_nombre_completo(self, paciente):
+    def obtener_nombre_completo(
+        self,
+        paciente
+    ):
+
         return (
             f"{paciente.get('nombre', '')} "
             f"{paciente.get('apellido', '')}"
         ).strip()
 
-    def formatear_genero(self, genero):
+    def formatear_genero(
+        self,
+        genero
+    ):
+
         if not genero:
             return "No especificado"
 
@@ -187,24 +288,108 @@ class ListaPacientes(ttk.Frame):
 
         return genero.capitalize()
 
-    def formatear_fecha(self, fecha):
+    def formatear_fecha(
+        self,
+        fecha
+    ):
+
         if not fecha:
             return ""
 
-        return fecha.strftime("%d/%m/%Y")
+        return fecha.strftime(
+            "%d/%m/%Y"
+        )
 
-    def eliminar_paciente(self):
+    def ver_detalle(self):
+
         seleccionado = self.tabla.focus()
 
         if not seleccionado:
+
             messagebox.showwarning(
                 "Aviso",
                 "Seleccione un paciente"
             )
+
             return
 
-        id_paciente = self.ids_pacientes[seleccionado]
-        nombre = self.tabla.item(seleccionado)["values"][0]
+        id_paciente = self.ids_pacientes[
+            seleccionado
+        ]
+
+        paciente = (
+            self.app.paciente_controller
+            .paciente_repository
+            .obtener_por_id(id_paciente)
+        )
+
+        vista_detalle = self.app.frames[
+            "detalle_paciente"
+        ]
+
+        vista_detalle.cargar_paciente(
+            paciente
+        )
+
+        self.app.mostrar_vista(
+            "detalle_paciente"
+        )
+
+    def editar_paciente(self):
+
+        seleccionado = self.tabla.focus()
+
+        if not seleccionado:
+
+            messagebox.showwarning(
+                "Aviso",
+                "Seleccione un paciente"
+            )
+
+            return
+
+        id_paciente = self.ids_pacientes[
+            seleccionado
+        ]
+
+        paciente = (
+            self.app.paciente_controller
+            .paciente_repository
+            .obtener_por_id(id_paciente)
+        )
+
+        vista_editar = self.app.frames[
+            "editar_paciente"
+        ]
+
+        vista_editar.cargar_paciente(
+            paciente
+        )
+
+        self.app.mostrar_vista(
+            "editar_paciente"
+        )
+
+    def eliminar_paciente(self):
+
+        seleccionado = self.tabla.focus()
+
+        if not seleccionado:
+
+            messagebox.showwarning(
+                "Aviso",
+                "Seleccione un paciente"
+            )
+
+            return
+
+        id_paciente = self.ids_pacientes[
+            seleccionado
+        ]
+
+        nombre = self.tabla.item(
+            seleccionado
+        )["values"][0]
 
         confirmar = messagebox.askyesno(
             "Confirmar baja",
@@ -212,7 +397,10 @@ class ListaPacientes(ttk.Frame):
         )
 
         if confirmar:
-            self.app.paciente_controller.eliminar_paciente(id_paciente)
+
+            self.app.paciente_controller.eliminar_paciente(
+                id_paciente
+            )
 
             messagebox.showinfo(
                 "Paciente eliminado",

@@ -31,3 +31,28 @@ class PacienteController:
 
     def eliminar_paciente(self, id_paciente):
         self.paciente_repository.eliminar_por_id(id_paciente)
+
+    def actualizar_paciente(
+        self,
+        id_paciente,
+        datos
+    ):
+
+        paciente_validado = PacienteSchema(
+            **datos
+        )
+
+        datos_actualizados = {
+            "nombre": paciente_validado.nombre,
+            "apellido": paciente_validado.apellido,
+            "género": paciente_validado.género,
+            "fechaNacimiento": datetime.strptime(
+                paciente_validado.fechaNacimiento,
+                "%Y-%m-%d"
+            )
+        }
+
+        self.paciente_repository.actualizar_por_id(
+            id_paciente,
+            datos_actualizados
+        )

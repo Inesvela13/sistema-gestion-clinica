@@ -65,3 +65,60 @@ class TensionController:
 
     def eliminar_tension(self, id_tension):
         self.tension_repository.eliminar_por_id(id_tension)
+
+    def actualizar_tension(
+        self,
+        id_tension,
+        datos
+    ):
+
+        datos["sistolica"] = int(
+            datos["sistolica"]
+        )
+
+        datos["diastolica"] = int(
+            datos["diastolica"]
+        )
+
+        tension_validada = TensionSchema(
+            **datos
+        )
+
+        valor_en_rango = (
+            self.tension_service
+            .calcular_valor_en_rango(
+                tension_validada.sistolica,
+                tension_validada.diastolica
+            )
+        )
+
+        datos_actualizados = {
+
+            "id_paciente": (
+                tension_validada.id_paciente
+            ),
+
+            "valores": {
+
+                "sistolica": (
+                    tension_validada.sistolica
+                ),
+
+                "diastolica": (
+                    tension_validada.diastolica
+                )
+            },
+
+            "valoracion": (
+                tension_validada.valoracion
+            ),
+
+            "valor_en_rango": (
+                valor_en_rango
+            )
+        }
+
+        self.tension_repository.actualizar_por_id(
+            id_tension,
+            datos_actualizados
+        )
